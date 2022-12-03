@@ -21,7 +21,7 @@ void GpioController::initGpio() {
   digitalWrite(Relay_1_Pin, LOW);
 }
 
-void GpioController::setCurrentMotorSpeed(uint8_t value) {
+void GpioController::setCurrentMotorSpeed(const uint8_t value) {
   currentMotorSpeed = value;
 }
 
@@ -29,7 +29,7 @@ uint8_t GpioController::getCurrentMotorSpeed() {
   return currentMotorSpeed;
 }
 
-void GpioController::setCurrentFanSpeed(uint8_t value) {
+void GpioController::setCurrentFanSpeed(const uint8_t value) {
   currentFanSpeed = value;
 }
 
@@ -55,7 +55,7 @@ void GpioController::blinkLed() {
   }
 }
 
-void GpioController::setMotorSpeed(uint8_t value) {
+void GpioController::setMotorSpeed(const uint8_t value) {
   mPWMFor = PWM_FOR_MOTOR;
   Serial.print("Set PWM value: ");
   Serial.println(value);
@@ -68,7 +68,7 @@ void GpioController::setMotorSpeed(uint8_t value) {
   }
 }
 
-void GpioController::setFanSpeed(uint8_t value) {
+void GpioController::setFanSpeed(const uint8_t value) {
   mPWMFor = PWM_FOR_FAN;
   Serial.print("Set PWM Fan value: ");
   Serial.println(value);
@@ -81,7 +81,7 @@ void GpioController::setFanSpeed(uint8_t value) {
   }
 }
 
-void adjustPWM(char value) {
+void adjustPWM(const char value) {
   uint8_t pwmType = GpioController::getInstance()->getPWMFor();
   if (pwmType == PWM_FOR_MOTOR) {
     uint8_t currentSpeed = GpioController::getInstance()->getCurrentMotorSpeed();

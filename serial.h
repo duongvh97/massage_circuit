@@ -22,7 +22,7 @@ public:
     return &obj;
   };
   SerialCommand();
-  void serialInit();
+  void initSerial();
   void getSerialCommand();
   void handleSerialCommand();
   void serialLoop();

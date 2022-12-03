@@ -7,7 +7,7 @@ SerialCommand::SerialCommand() {
   buffer = 0x00;
 }
 
-void SerialCommand::serialInit() {
+void SerialCommand::initSerial() {
   Serial.begin(DEFAULT_BAUDRATE);
 }
 

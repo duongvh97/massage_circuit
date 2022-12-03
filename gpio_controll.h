@@ -24,13 +24,13 @@ public:
   void initGpio();
   void blinkLed();
 
-  void setMotorSpeed(uint8_t value);
-  void setFanSpeed(uint8_t value);
+  void setMotorSpeed(const uint8_t value);
+  void setFanSpeed(const uint8_t value);
 
-  void setCurrentMotorSpeed(uint8_t value);
+  void setCurrentMotorSpeed(const uint8_t value);
   uint8_t getCurrentMotorSpeed();
 
-  void setCurrentFanSpeed(uint8_t value);
+  void setCurrentFanSpeed(const uint8_t value);
   uint8_t getCurrentFanSpeed();
 
   Ticker getTicker();
@@ -38,5 +38,5 @@ public:
   uint8_t getPWMFor();
 };
 
-void adjustPWM(char value);
+void adjustPWM(const char value);
 #endif

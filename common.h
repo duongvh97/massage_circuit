@@ -51,13 +51,12 @@
 #define DIRECTION_DEC false
 
 #define DELAY_OUTPUT_PWM 20
+#define DELAY_READ_SENSOR 20
+
+#define TIMES_TO_READ_SENSOR 10
 
 #define PWM_FOR_MOTOR 0
 #define PWM_FOR_FAN 1
 #define PWM_FOR_NONE 2
-
-
-
-
 
 #endif  // _COMMONT_H_
