@@ -21,7 +21,7 @@ public:
     irrecv = NULL;
     delete irrecv;
   }
-    static IR* getInstance() {
+  static IR* getInstance() {
     static IR obj;
     return &obj;
   }
@@ -32,6 +32,8 @@ public:
   Ticker getTickerCoutdown();
   Ticker getTickerCoutdownSec();
   void detachTicker();
+  void pause();
+  void resume();
 };
 
 static void turnOffDevice();

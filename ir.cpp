@@ -73,8 +73,7 @@ void IR::IRLoop() {
           m_ticker_countdown.attach(DELAY_MINUTES_TURN_OFF_DEVICE * 60, turnOffDevice);
           timeSec = DELAY_MINUTES_TURN_OFF_DEVICE * 60;
           isSetTimeout = true;
-        }
-        else {
+        } else {
           detachTicker();
           isSetTimeout = false;
         }
@@ -132,4 +131,14 @@ static void countdownSec(const int data) {
     IR::getInstance()->getTickerCoutdownSec().detach();
     LCD::getInstance()->lcdPrintTimeout(0, timeSec);
   }
+}
+
+void IR::pause() {
+  m_ticker_countdown.detach();
+  m_ticker_countdown_sec.detach();
+}
+
+void IR::resume() {
+  m_ticker_countdown.attach(timeSec, turnOffDevice);
+  m_ticker_countdown_sec.attach_ms(1000, countdownSec, timeSec);
 }

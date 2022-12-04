@@ -37,6 +37,8 @@ public:
   Ticker getTicker();
   Ticker getTickerCoutdownSec();
   void detachTicker();
+  void pause();
+  void resume();
 };
 
 static void turnOffDevice();

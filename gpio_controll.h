@@ -41,6 +41,9 @@ public:
   void controllWarmLight(const bool value);
   bool getWarmLightState();
 
+  void pause();
+  void resume();
+
   Ticker getTicker();
   Ticker getTickerFan();
   Ticker getTickerWarmLight();

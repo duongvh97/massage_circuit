@@ -33,6 +33,8 @@ public:
   void lcdPrintTimeout(const bool state, const int data);
   void lcdPrintTimeoutWarmLight(const bool state, const int data);
   void lcdRefresh();
+  void lcdClear();
+  void reloadScreen();
 };
 
 #endif  // _SERIAL_H_

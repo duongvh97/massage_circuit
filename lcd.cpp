@@ -80,10 +80,9 @@ void LCD::lcdPrintTimeout(const bool state, const int data) {
   m_LCD.print(data);
   m_LCD.print("   ");
   lcdPrint(0, 11, "TDev:");
-  if(state) {
+  if (state) {
     m_LCD.print("ON ");
-  }
-  else {
+  } else {
     m_LCD.print("OFF");
   }
 }
@@ -92,10 +91,9 @@ void LCD::lcdPrintTimeoutWarmLight(const bool state, const int data) {
   m_LCD.print(data);
   m_LCD.print("  ");
   lcdPrint(2, 11, "TLig:");
-  if(state) {
+  if (state) {
     m_LCD.print("ON ");
-  }
-  else {
+  } else {
     m_LCD.print("OFF");
   }
 }
@@ -125,4 +123,20 @@ void LCD::lcdRefresh() {
     lastWarmLightState = currentWarmLightState;
     lcdPrintWarmLightState(currentWarmLightState);
   }
+}
+
+void LCD::lcdClear() {
+  m_LCD.clear();
+}
+
+void LCD::reloadScreen() {
+  uint8_t currentMotorSpeed = GpioController::getInstance()->getCurrentMotorSpeed();
+  uint8_t currentFanSpeed = GpioController::getInstance()->getCurrentFanSpeed();
+  bool currentWarmLightState = GpioController::getInstance()->getWarmLightState();
+  bool currentSensorState = Sensor::getInstance()->getSensorState();
+  m_LCD.clear();
+  lcdPrintMotorSpeed(currentMotorSpeed);
+  lcdPrintFanSpeed(currentFanSpeed);
+  lcdPrintSensor(currentSensorState);
+  lcdPrintWarmLightState(currentWarmLightState);
 }

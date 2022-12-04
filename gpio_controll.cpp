@@ -86,7 +86,7 @@ void GpioController::turnOffAll() {
   setMotorSpeed(PWM_OFF);
   setFanSpeed(PWM_OFF);
   controllWarmLight(TURN_OFF);
-  
+
   if (SerialCommand::getInstance()->getSetTimeoutState()) {
     SerialCommand::getInstance()->detachTicker();
   }
@@ -109,7 +109,6 @@ void GpioController::controllWarmLight(const bool value) {
     m_TickerWarmLight.detach();
     LCD::getInstance()->lcdPrintTimeoutWarmLight(0, 0);
     timeSec = 0;
-
     warmLightState = false;
   }
 }
@@ -159,4 +158,14 @@ void coundownSecWarmLight(const int data) {
   if (timeSec == 0) {
     GpioController::getInstance()->getTickerCoutdownSec().detach();
   }
+}
+
+void GpioController::pause() {
+  m_countdownSec.detach();
+  m_TickerWarmLight.detach();
+}
+
+void GpioController::resume() {
+  m_TickerWarmLight.attach(timeSec, turnOffWarmLight);
+  m_countdownSec.attach(1, coundownSecWarmLight, timeSec);
 }

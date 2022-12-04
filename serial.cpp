@@ -106,7 +106,7 @@ void SerialCommand::handleSerialCommand() {
       case CMD_SET_TIME_OUT:
         Serial.print("Receive CMD_SET_TIME_OUT\n");
         if (IR::getInstance()->getSetTimeoutState()) {
-          IR::getInstance()->detachTicker();          
+          IR::getInstance()->detachTicker();
         }
         if (!isSetTimeout) {
           m_ticker_countdown_sec.attach_ms(1000, countdownSec, DELAY_MINUTES_TURN_OFF_DEVICE * 60);
@@ -114,8 +114,7 @@ void SerialCommand::handleSerialCommand() {
           isSetTimeout = true;
           timeSec = DELAY_MINUTES_TURN_OFF_DEVICE * 60;
           buffer = 0x00;
-        }
-        else {
+        } else {
           isSetTimeout = true;
           detachTicker();
         }
@@ -237,4 +236,14 @@ static void countdownSec(const int data) {
     SerialCommand::getInstance()->getTickerCoutdownSec().detach();
     LCD::getInstance()->lcdPrintTimeout(0, timeSec);
   }
+}
+
+void SerialCommand::pause() {
+  m_ticker_countdown.detach();
+  m_ticker_countdown_sec.detach();
+}
+
+void SerialCommand::resume() {
+  m_ticker_countdown.attach(timeSec, turnOffDevice);
+  m_ticker_countdown_sec.attach_ms(1000, countdownSec, timeSec);
 }
