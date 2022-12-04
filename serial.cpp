@@ -225,7 +225,7 @@ static void turnOffDevice() {
   SerialCommand::getInstance()->setTimeoutState(false);
   SerialCommand::getInstance()->getTicker().detach();
   timeSec = 0;
-  IR::getInstance()->getTickerCoutdownSec().detach();
+  SerialCommand::getInstance()->getTickerCoutdownSec().detach();
   LCD::getInstance()->lcdPrintTimeout(0, timeSec);
 }
 
