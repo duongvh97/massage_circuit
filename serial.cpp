@@ -115,7 +115,6 @@ void SerialCommand::handleSerialCommand() {
           timeSec = DELAY_MINUTES_TURN_OFF_DEVICE * 60;
           buffer = 0x00;
         } else {
-          isSetTimeout = true;
           detachTicker();
         }
         break;
