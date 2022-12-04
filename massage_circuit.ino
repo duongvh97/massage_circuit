@@ -4,18 +4,23 @@
 #include "ir.h"
 #include "lcd.h"
 
+void runDefault();
+
 void setup() {
   SerialCommand::getInstance()->initSerial();
   GpioController::getInstance()->initGpio();
   Sensor::getInstance()->initSensor();
   IR::getInstance()->initIR();
-  LCD::getInstance()->initLCD();
-  LCD::getInstance()->lcdPrint(0, 0, "Duong");
-  LCD::getInstance()->lcdPrint(1, 0, "Huyen");
+  LCD::getInstance()->initLCD();  
 }
 
 void loop() {
   SerialCommand::getInstance()->serialLoop();
   GpioController::getInstance()->blinkLed();
+  LCD::getInstance()->lcdRefresh();
   IR::getInstance()->IRLoop();
+}
+
+void runDefault() {
+  
 }

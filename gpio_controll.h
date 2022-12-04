@@ -4,6 +4,7 @@
 #include "common.h"
 #include <Arduino.h>
 #include <Ticker.h>
+#include <bits/stdc++.h>
 
 class GpioController {
 private:
@@ -11,9 +12,11 @@ private:
   int currentMillis;
   uint8_t currentMotorSpeed;
   uint8_t currentFanSpeed;
-  uint8_t mPWMFor;
   Ticker m_ticker;
   Ticker m_tickerFan;
+  Ticker m_TickerWarmLight;
+  Ticker m_countdownSec;
+  bool warmLightState;
 
 public:
   GpioController();
@@ -33,10 +36,20 @@ public:
   void setCurrentFanSpeed(const uint8_t value);
   uint8_t getCurrentFanSpeed();
 
+  void turnOffAll();
+
+  void controllWarmLight(const bool value);
+  bool getWarmLightState();
+
   Ticker getTicker();
   Ticker getTickerFan();
-  uint8_t getPWMFor();
+  Ticker getTickerWarmLight();
+  Ticker getTickerCoutdownSec();
 };
 
-void adjustPWM(const char value);
+void adjustPWMMotor(const char value);
+void adjustPWMFan(const char value);
+void turnOffWarmLight();
+void coundownSecWarmLight(const int data);
+
 #endif

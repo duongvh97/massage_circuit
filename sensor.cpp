@@ -22,13 +22,12 @@ void Sensor::readSensorValue() {
     count++;
     if (count == TIMES_TO_READ_SENSOR) {
       count = 0;
-      m_sensorState = 0;
+      m_sensorState = 1;
     }
   } else {
     count = 0;
-    m_sensorState = 1;
+    m_sensorState = 0;
   }
-  LCD::getInstance()->lcdPrint(3, 0, m_sensorState);
 }
 
 void sensorLoop() {

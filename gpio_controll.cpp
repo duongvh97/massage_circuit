@@ -1,13 +1,17 @@
 #include "core_esp8266_features.h"
 #include "gpio_controll.h"
 #include "serial.h"
+#include "lcd.h"
+#include "ir.h"
+
+static int timeSec = 0;
 
 GpioController::GpioController() {
-  timeInterval = 1000;
+  timeInterval = 200;
   currentMotorSpeed = 0;
   currentFanSpeed = 0;
-  mPWMFor = PWM_FOR_NONE;
   currentMillis = millis();
+  warmLightState = false;
 }
 
 void GpioController::initGpio() {
@@ -40,12 +44,17 @@ uint8_t GpioController::getCurrentFanSpeed() {
 Ticker GpioController::getTicker() {
   return m_ticker;
 }
+
 Ticker GpioController::getTickerFan() {
   return m_tickerFan;
 }
 
-uint8_t GpioController::getPWMFor() {
-  return mPWMFor;
+Ticker GpioController::getTickerWarmLight() {
+  return m_TickerWarmLight;
+}
+
+Ticker GpioController::getTickerCoutdownSec() {
+  return m_countdownSec;
 }
 
 void GpioController::blinkLed() {
@@ -56,60 +65,98 @@ void GpioController::blinkLed() {
 }
 
 void GpioController::setMotorSpeed(const uint8_t value) {
-  mPWMFor = PWM_FOR_MOTOR;
-  Serial.print("Set PWM value: ");
-  Serial.println(value);
-
   if (currentMotorSpeed < value) {
-    m_ticker.attach_ms(DELAY_OUTPUT_PWM, adjustPWM, (char)value);
+    m_ticker.attach_ms(DELAY_OUTPUT_PWM, adjustPWMMotor, (char)value);
 
   } else if (currentMotorSpeed > value) {
-    m_ticker.attach_ms(DELAY_OUTPUT_PWM, adjustPWM, (char)value);
+    m_ticker.attach_ms(DELAY_OUTPUT_PWM, adjustPWMMotor, (char)value);
   }
 }
 
 void GpioController::setFanSpeed(const uint8_t value) {
-  mPWMFor = PWM_FOR_FAN;
-  Serial.print("Set PWM Fan value: ");
-  Serial.println(value);
-
   if (currentFanSpeed < value) {
-    m_tickerFan.attach_ms(DELAY_OUTPUT_PWM, adjustPWM, (char)value);
+    m_tickerFan.attach_ms(DELAY_OUTPUT_PWM_FAN, adjustPWMFan, (char)value);
 
   } else if (currentFanSpeed > value) {
-    m_tickerFan.attach_ms(DELAY_OUTPUT_PWM, adjustPWM, (char)value);
+    m_tickerFan.attach_ms(DELAY_OUTPUT_PWM_FAN, adjustPWMFan, (char)value);
   }
 }
 
-void adjustPWM(const char value) {
-  uint8_t pwmType = GpioController::getInstance()->getPWMFor();
-  if (pwmType == PWM_FOR_MOTOR) {
-    uint8_t currentSpeed = GpioController::getInstance()->getCurrentMotorSpeed();
-    if (currentSpeed < value) {
-      currentSpeed++;
-      GpioController::getInstance()->setCurrentMotorSpeed(currentSpeed);
-    } else {
-      currentSpeed--;
-      GpioController::getInstance()->setCurrentMotorSpeed(currentSpeed);
-    }
-    analogWrite(PWM_Pin, currentSpeed);
-    Serial.println(currentSpeed);
-    if (currentSpeed == value) {
-      GpioController::getInstance()->getTicker().detach();
-    }
-  } else if (pwmType == PWM_FOR_FAN) {
-    uint8_t currentSpeed = GpioController::getInstance()->getCurrentFanSpeed();
-    if (currentSpeed < value) {
-      currentSpeed++;
-      GpioController::getInstance()->setCurrentFanSpeed(currentSpeed);
-    } else {
-      currentSpeed--;
-      GpioController::getInstance()->setCurrentFanSpeed(currentSpeed);
-    }
-    analogWrite(PWM_Pin, currentSpeed);
-    Serial.println(currentSpeed);
-    if (currentSpeed == value) {
-      GpioController::getInstance()->getTickerFan().detach();
-    }
+void GpioController::turnOffAll() {
+  setMotorSpeed(PWM_OFF);
+  setFanSpeed(PWM_OFF);
+  controllWarmLight(TURN_OFF);
+  
+  if (SerialCommand::getInstance()->getSetTimeoutState()) {
+    SerialCommand::getInstance()->detachTicker();
+  }
+
+  if (IR::getInstance()->getSetTimeoutState()) {
+    IR::getInstance()->detachTicker();
+  }
+}
+
+void GpioController::controllWarmLight(const bool value) {
+  if (value) {
+    digitalWrite(Relay_1_Pin, HIGH);
+    m_TickerWarmLight.attach(DELAY_MINUTES_TURN_OFF_WARMLIGHT * 60, turnOffWarmLight);
+    m_countdownSec.attach(1, coundownSecWarmLight, DELAY_MINUTES_TURN_OFF_WARMLIGHT * 60);
+    timeSec = DELAY_MINUTES_TURN_OFF_WARMLIGHT * 60;
+    warmLightState = true;
+  } else {
+    digitalWrite(Relay_1_Pin, LOW);
+    m_countdownSec.detach();
+    m_TickerWarmLight.detach();
+    LCD::getInstance()->lcdPrintTimeoutWarmLight(0, 0);
+    timeSec = 0;
+
+    warmLightState = false;
+  }
+}
+
+bool GpioController::getWarmLightState() {
+  return warmLightState;
+}
+
+void adjustPWMMotor(const char value) {
+  uint8_t currentSpeed = GpioController::getInstance()->getCurrentMotorSpeed();
+  if (currentSpeed < value) {
+    currentSpeed++;
+    GpioController::getInstance()->setCurrentMotorSpeed(currentSpeed);
+  } else {
+    currentSpeed--;
+    GpioController::getInstance()->setCurrentMotorSpeed(currentSpeed);
+  }
+  analogWrite(PWM_Pin, currentSpeed);
+  if (currentSpeed == value) {
+    GpioController::getInstance()->getTicker().detach();
+  }
+}
+
+void adjustPWMFan(const char value) {
+  uint8_t currentSpeed = GpioController::getInstance()->getCurrentFanSpeed();
+  if (currentSpeed < value) {
+    currentSpeed++;
+    GpioController::getInstance()->setCurrentFanSpeed(currentSpeed);
+  } else {
+    currentSpeed--;
+    GpioController::getInstance()->setCurrentFanSpeed(currentSpeed);
+  }
+  analogWrite(Fan_Pin, currentSpeed);
+  if (currentSpeed == value) {
+    GpioController::getInstance()->getTickerFan().detach();
+  }
+}
+
+void turnOffWarmLight() {
+  GpioController::getInstance()->controllWarmLight(TURN_OFF);
+  GpioController::getInstance()->getTickerWarmLight().detach();
+}
+
+void coundownSecWarmLight(const int data) {
+  LCD::getInstance()->lcdPrintTimeoutWarmLight(1, --timeSec);
+
+  if (timeSec == 0) {
+    GpioController::getInstance()->getTickerCoutdownSec().detach();
   }
 }
