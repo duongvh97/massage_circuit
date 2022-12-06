@@ -12,6 +12,8 @@ private:
   int currentMillis;
   uint8_t currentMotorSpeed;
   uint8_t currentFanSpeed;
+  uint8_t lastMotorSpeed;
+  uint8_t lastFanSpeed;
   Ticker m_ticker;
   Ticker m_tickerFan;
   Ticker m_TickerWarmLight;

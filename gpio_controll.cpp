@@ -10,6 +10,8 @@ GpioController::GpioController() {
   timeInterval = 200;
   currentMotorSpeed = 0;
   currentFanSpeed = 0;
+  lastMotorSpeed = 0;
+  lastFanSpeed = 0;
   currentMillis = millis();
   warmLightState = false;
 }
@@ -22,7 +24,7 @@ void GpioController::initGpio() {
   // pinMode(Relay_2_Pin, OUTPUT);
   analogWrite(PWM_Pin, PWM_OFF);
   analogWrite(Fan_Pin, PWM_OFF);
-  digitalWrite(Relay_1_Pin, LOW);
+  digitalWrite(Relay_1_Pin, HIGH);
 }
 
 void GpioController::setCurrentMotorSpeed(const uint8_t value) {
@@ -98,13 +100,13 @@ void GpioController::turnOffAll() {
 
 void GpioController::controllWarmLight(const bool value) {
   if (value) {
-    digitalWrite(Relay_1_Pin, HIGH);
+    digitalWrite(Relay_1_Pin, LOW);
     m_TickerWarmLight.attach(DELAY_MINUTES_TURN_OFF_WARMLIGHT * 60, turnOffWarmLight);
     m_countdownSec.attach(1, coundownSecWarmLight, DELAY_MINUTES_TURN_OFF_WARMLIGHT * 60);
     timeSec = DELAY_MINUTES_TURN_OFF_WARMLIGHT * 60;
     warmLightState = true;
   } else {
-    digitalWrite(Relay_1_Pin, LOW);
+    digitalWrite(Relay_1_Pin, HIGH);
     m_countdownSec.detach();
     m_TickerWarmLight.detach();
     LCD::getInstance()->lcdPrintTimeoutWarmLight(0, 0);
@@ -163,9 +165,15 @@ void coundownSecWarmLight(const int data) {
 void GpioController::pause() {
   m_countdownSec.detach();
   m_TickerWarmLight.detach();
+  lastMotorSpeed = getCurrentMotorSpeed();
+  lastFanSpeed = getCurrentFanSpeed();
+  setMotorSpeed(PWM_OFF);
+  setFanSpeed(PWM_OFF);
 }
 
 void GpioController::resume() {
   m_TickerWarmLight.attach(timeSec, turnOffWarmLight);
   m_countdownSec.attach(1, coundownSecWarmLight, timeSec);
+  setMotorSpeed(lastMotorSpeed);
+  setFanSpeed(lastFanSpeed);
 }

@@ -175,7 +175,7 @@ void SerialCommand::reportState() {
       dataReport[2] = 0x03;
       break;
     case PWM_LEVEL_4:
-      dataReport[2] = 0x04;
+      dataReport[2] = 0x01;
       break;
     default:
       break;
