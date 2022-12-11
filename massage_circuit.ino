@@ -34,10 +34,7 @@ void run() {
     LCD::getInstance()->lcdRefresh();
     IR::getInstance()->IRLoop();
     if (isShowPause) {
-      if (GpioController::getInstance()->getWarmLightState()) {
-        GpioController::getInstance()->resume();
-      }
-
+      GpioController::getInstance()->resume();
       if (SerialCommand::getInstance()->getSetTimeoutState()) {
         SerialCommand::getInstance()->resume();
       }

@@ -19,6 +19,7 @@ private:
   Ticker m_TickerWarmLight;
   Ticker m_countdownSec;
   bool warmLightState;
+  bool isPaused;
 
 public:
   GpioController();

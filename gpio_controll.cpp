@@ -14,6 +14,7 @@ GpioController::GpioController() {
   lastFanSpeed = 0;
   currentMillis = millis();
   warmLightState = false;
+  isPaused = false;
 }
 
 void GpioController::initGpio() {
@@ -163,8 +164,12 @@ void coundownSecWarmLight(const int data) {
 }
 
 void GpioController::pause() {
-  m_countdownSec.detach();
-  m_TickerWarmLight.detach();
+  if (!isPaused && getWarmLightState()) {
+    m_countdownSec.detach();
+    m_TickerWarmLight.detach();
+    controllWarmLight(TURN_OFF);
+    isPaused = true;
+  }
   lastMotorSpeed = getCurrentMotorSpeed();
   lastFanSpeed = getCurrentFanSpeed();
   setMotorSpeed(PWM_OFF);
@@ -172,8 +177,12 @@ void GpioController::pause() {
 }
 
 void GpioController::resume() {
-  m_TickerWarmLight.attach(timeSec, turnOffWarmLight);
-  m_countdownSec.attach(1, coundownSecWarmLight, timeSec);
+  if (isPaused && !getWarmLightState()) {
+    m_TickerWarmLight.attach(timeSec, turnOffWarmLight);
+    m_countdownSec.attach(1, coundownSecWarmLight, timeSec);
+    controllWarmLight(TURN_ON);
+    isPaused = false;
+  }
   setMotorSpeed(lastMotorSpeed);
   setFanSpeed(lastFanSpeed);
 }
