@@ -3,6 +3,7 @@
 #include "sensor.h"
 #include "ir.h"
 #include "lcd.h"
+#include "network.h"
 
 static bool isShowPause = false;
 void runDefault();
@@ -14,11 +15,14 @@ void setup() {
   Sensor::getInstance()->initSensor();
   IR::getInstance()->initIR();
   LCD::getInstance()->initLCD();
+  Network::getInstance()->network_init();
+
   runDefault();
 }
 
 void loop() {
   run();
+  Network::getInstance()->network_loop();
 }
 
 void runDefault() {
@@ -28,7 +32,7 @@ void runDefault() {
 }
 
 void run() {
-  if (Sensor::getInstance()->getSensorState()) {
+  if (!Sensor::getInstance()->getSensorState()) {
     SerialCommand::getInstance()->serialLoop();
     GpioController::getInstance()->blinkLed();
     LCD::getInstance()->lcdRefresh();
@@ -46,20 +50,20 @@ void run() {
       isShowPause = false;
     }
   } else {
-    if (!isShowPause) {
-      isShowPause = true;
-      if (SerialCommand::getInstance()->getSetTimeoutState()) {
-        SerialCommand::getInstance()->pause();
-      }
+    // if (!isShowPause) {
+    //   isShowPause = true;
+    //   if (SerialCommand::getInstance()->getSetTimeoutState()) {
+    //     SerialCommand::getInstance()->pause();
+    //   }
 
-      if (IR::getInstance()->getSetTimeoutState()) {
-        IR::getInstance()->pause();
-      }
+    //   if (IR::getInstance()->getSetTimeoutState()) {
+    //     IR::getInstance()->pause();
+    //   }
 
-      GpioController::getInstance()->pause();
+    //   GpioController::getInstance()->pause();
 
-      LCD::getInstance()->lcdClear();
-      LCD::getInstance()->lcdPrint(1, 4, "SYSTEM PAUSE!");
-    }
+    //   LCD::getInstance()->lcdClear();
+    //   LCD::getInstance()->lcdPrint(1, 4, "SYSTEM PAUSE!");
+    // }
   }
 }

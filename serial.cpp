@@ -16,6 +16,7 @@ SerialCommand::SerialCommand() {
 
 void SerialCommand::initSerial() {
   Serial.begin(DEFAULT_BAUDRATE);
+  Serial.println("Init done");
 }
 
 void SerialCommand::getSerialCommand() {
